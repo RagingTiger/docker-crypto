@@ -6,6 +6,7 @@ RUN apt-get update && apt-get -y install \
 	git \
 	curl \
 	wget \
+	pv \
 	ascii
 
 WORKDIR /root
