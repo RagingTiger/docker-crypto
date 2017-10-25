@@ -7,6 +7,7 @@ RUN apt-get update && apt-get -y install \
 	curl \
 	wget \
 	pv \
-	ascii
+	ascii \
+	youtube-dl \
 
 WORKDIR /root
