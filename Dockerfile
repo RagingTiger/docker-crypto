@@ -8,6 +8,6 @@ RUN apt-get update && apt-get -y install \
 	wget \
 	pv \
 	ascii \
-	youtube-dl \
+	youtube-dl
 
 WORKDIR /root
