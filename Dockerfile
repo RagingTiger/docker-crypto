@@ -8,6 +8,9 @@ RUN apt-get update && apt-get -y install \
 	wget \
 	pv \
 	ascii \
-	youtube-dl
+	youtube-dl\
+	python python-dev python-pip python-virtualenv
+
+RUN pip install caesarcipher
 
 WORKDIR /root
