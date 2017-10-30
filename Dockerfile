@@ -1,5 +1,7 @@
+# fixed base image
 FROM ubuntu:16.04
 
+# apt-get installs for ubuntu
 RUN apt-get update && apt-get -y install \
 	openssl='1.0.2g-1ubuntu4.8' \
 	gnupg2='2.1.11-6ubuntu2' \
@@ -11,6 +13,8 @@ RUN apt-get update && apt-get -y install \
 	youtube-dl\
 	python python-dev python-pip python-virtualenv
 
+# install python crypto tools
 RUN pip install caesarcipher
 
+# make working dir '/root'
 WORKDIR /root
