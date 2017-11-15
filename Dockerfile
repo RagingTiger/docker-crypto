@@ -10,11 +10,11 @@ RUN apt-get update && apt-get -y install \
 	wget \
 	pv \
 	ascii \
-	youtube-dl\
 	python python-dev python-pip python-virtualenv
 
 # install python crypto tools
 RUN pip install caesarcipher
 
-# make working dir '/root'
-WORKDIR /root
+# make working dir
+RUN mkdir -p /home/crypto
+WORKDIR /home/crypto
