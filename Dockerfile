@@ -10,6 +10,8 @@ RUN apt-get update && apt-get -y install \
 	wget \
 	pv \
 	ascii \
+	nano \
+	vim \
 	python python-dev python-pip python-virtualenv
 
 # install python crypto tools
