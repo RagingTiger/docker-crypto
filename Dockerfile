@@ -17,6 +17,11 @@ RUN apt-get update && apt-get -y install \
 # install python crypto tools
 RUN pip install caesarcipher
 
+# upload crypto source and link
+COPY crypto.sh /usr/src
+RUN ln /usr/src/crypto.sh /usr/bin/encrypt
+RUN ln /usr/src/crypto.sh /usr/bin/decrypt
+
 # make working dir
 RUN mkdir -p /home/crypto
 WORKDIR /home/crypto
