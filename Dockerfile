@@ -12,10 +12,11 @@ RUN apt-get update && apt-get -y install \
 	ascii \
 	nano \
 	vim \
-	python python-dev python-pip python-virtualenv
+	python python-dev python-pip python-stepic python-virtualenv
 
 # install python crypto tools
-RUN pip install caesarcipher
+COPY requirements.txt /usr/src
+RUN pip install -r /usr/src/requirements.txt
 
 # upload crypto source and link
 COPY crypto.sh /usr/src
