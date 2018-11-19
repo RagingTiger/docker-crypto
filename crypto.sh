@@ -1,68 +1,119 @@
 #!/bin/bash
 
 # functions
-get_passwd(){
-  # gen local var to hold password
-  local password_input
-
-  # get passphrase
-  echo -n "Passphrase: "
-  read password_input
-
-  # return passphrase
-  echo "$password_input"
+prompt(){
+  echo -n "$1"
 }
 
-get_outfile(){
-  # gen local var to hold outfile name
-  local outname_input
+get_input(){
+  # gen local var
+  local user_input
 
-  # get output file name
-  echo -n "$1 decrypted output file name: "
-  read outname_input
-  echo "Decrypting $1 as $outname_input"
+  # get input
+  read user_input
 
-  # return
-  echo "$outname_input"
+  # return input
+  echo "$user_input"
 }
 
 crypt(){
   # setup initial stuff
   local mode="$(echo $1)"
-  local outname="${3:-$3}"
-  local passwd="${2:-$2}"
-  
-  # begin encrypt/decrypt
-  for file in "${@:2}"; do
-    # get output name
-    if [[ "$mode" == "d" ]]; then
-      # announce decryption
-      if [ -z "$outname" ]; then
-        outname=$(get_outfile $file)
-      fi
+  local inputname="${2:-}"
+  local passwd="${3:-}"
+  local outname="${4:-}"
 
-    else
-      # get hash
-      echo "Current file being encrypted: $file"
-      if [ -z "$outname" ]; then
-        echo "Defaulting to md5sum of file as name"
-        outname=$(md5sum "${file}" | awk '{print $1}')
-      fi
-
-      # announce encryption
-      echo "Encrypting $file as $outname"
+  ## begin encrypt/decrypt
+  # get output name
+  if [[ "$mode" == "d" ]]; then
+    # announce decryption
+    if [ -z "$outname" ]; then
+      prompt "$inputname decrypted output file name: "
+      outname=$(get_input)
+      echo "$inputname decrypted as $outname"
     fi
 
-    # get passphrase
-    if [ -z "$passwd" ]; then
-      passwd=$(get_passwd)
+  else
+    # get hash
+    echo "Current file being encrypted: $2"
+    if [ -z "$outname" ]; then
+      echo "Defaulting to md5sum of file as output name"
+      outname=$(md5sum "$inputname" | awk '{print $1}')
     fi
 
-    # encrypt/decrypt
-    pv "${file}" | openssl enc -aes-256-cbc -$mode -k "$passwd" >> "${outname}"
-  done
+    # announce encryption
+    echo "Encrypting $2 as $outname"
+  fi
+
+  # get passphrase
+  if [ -z "$passwd" ]; then
+    prompt "Passphrase: "
+    passwd=$(get_input)
+  fi
+
+  # encrypt/decrypt
+  pv "$inputname" | openssl enc -aes-256-cbc -$mode -k "$passwd" >> "${outname}"
 }
 
+# globals
+password=
+outfile=
+infile=
+fvalflag=
+
 # main
-[[ "$(basename $0)" == "encrypt" ]] && crypt "e" "$@"
-[[ "$(basename $0)" == "decrypt" ]] && crypt "d" "$@"
+while getopts ":p:o:f:" opt; do
+  case $opt in
+    p)
+      # get password arg
+      password="$OPTARG"
+      ;;
+    o)
+      # get outfile arg
+      outfile="$OPTARG"
+      ;;
+    f)
+      # set -f flag true
+      fvalflag=true
+
+      # get infile arg
+      infile="$OPTARG"
+
+      # check encrypt
+      if [[ "$(basename $0)" == "encrypt" ]]; then
+        if [ -z "$password" ]; then
+          echo "Error: -p option must be set before -f option for encryption"
+        else
+          crypt "e" "$infile" "$password" "$outfile"
+        fi
+      fi
+
+      # check decrypt
+      if [[ "$(basename $0)" == "decrypt" ]]; then
+        if [ -z "$password" ] || [ -z "$outfile" ]; then
+          echo -n "Error: -o and -p options must be set before -f option "
+          echo "for decryption" 1>&2
+        else
+          crypt "d" "$infile" "$password" "$outfile"
+        fi
+      fi
+      ;;
+    :)
+      echo "Invalid option: -$OPTARG requires an argument" 1>&2
+      ;;
+  esac
+done
+
+# execute
+if [ ! $fvalflag ]; then
+  [[ "$(basename $0)" == "encrypt" ]] && crypt "e" "$@" "$password" "$outname"
+  [[ "$(basename $0)" == "decrypt" ]] && crypt "d" "$@" "$password" "$outname"
+
+  # if un linked
+  if [[ "$(basename $0)" == "crypto.sh" ]]; then
+    echo "Expects for command to be named \"encrypt\" or \"decrypt\""
+    echo "Please create these by \"linking\" them to the crypto.sh file as such:"
+    echo "\$ ln crypto.sh encrypt"
+    echo "\$ ln crypto.sh decrypt"
+  fi
+fi
