@@ -100,14 +100,17 @@ while getopts ":p:o:f:" opt; do
       ;;
     :)
       echo "Invalid option: -$OPTARG requires an argument" 1>&2
+      exit
       ;;
   esac
 done
 
 # execute
-if [ ! $fvalflag ]; then
-  [[ "$(basename $0)" == "encrypt" ]] && crypt "e" "$@" "$password" "$outname"
-  [[ "$(basename $0)" == "decrypt" ]] && crypt "d" "$@" "$password" "$outname"
+shift $((OPTIND-1))
+if [ ! "$fvalflag" ] && [ -n "$*" ]; then
+  # run encrypt/decrypt
+  [[ "$(basename $0)" == "encrypt" ]] && crypt "e" "$1" "$password" "$outfile"
+  [[ "$(basename $0)" == "decrypt" ]] && crypt "d" "$1" "$password" "$outfile"
 
   # if un linked
   if [[ "$(basename $0)" == "crypto.sh" ]]; then
