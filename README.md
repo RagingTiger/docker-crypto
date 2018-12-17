@@ -5,3 +5,5 @@ This repo stores the `Dockerfile` for the `crypto` image: a frozen *Ubuntu 16
 ## ToDo
 1 Implement **-e** option for "Environment variables" where the program will
   check the ENV Vars first before running
+2 Switch base image to lsiobase/ubuntu
+3 Create RPi branch and switch base image to lsiobase/ubuntu.armhf
